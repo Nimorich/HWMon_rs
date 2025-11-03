@@ -1,3 +1,5 @@
+/// Таблица предварительно рассчитанных значений для алгоритма CRC-16/CCITT-FALSE
+/// Полином: 0x1021, начальное значение: 0xFFFF
 pub const CRC16_TABLE: [u16; 256] = [
     0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50A5, 0x60C6, 0x70E7,
     0x8108, 0x9129, 0xA14A, 0xB16B, 0xC18C, 0xD1AD, 0xE1CE, 0xF1EF,
@@ -33,16 +35,32 @@ pub const CRC16_TABLE: [u16; 256] = [
     0x6E17, 0x7E36, 0x4E55, 0x5E74, 0x2E93, 0x3EB2, 0x0ED1, 0x1EF0
 ];
 
+/// Вычисляет контрольную сумму CRC-16 для массива байтов
+/// 
+/// # Аргументы
+/// * `data` - срез байтов для которых нужно вычислить CRC
+/// 
+/// # Возвращает
+/// 16-битное значение контрольной суммы
 pub fn calculate_crc16(data: &[u8]) -> u16 {
-    let mut crc: u16 = 0xFFFF;
+    let mut crc: u16 = 0xFFFF;  // Начальное значение CRC
     
     for &byte in data {
+        // Алгоритм CRC-16: сдвиг и XOR с табличным значением
         crc = (crc << 8) ^ CRC16_TABLE[((crc >> 8) ^ (byte as u16)) as usize];
     }
     
     crc
 }
 
+/// Проверяет корректность данных по контрольной сумме CRC-16
+/// 
+/// # Аргументы
+/// * `data` - срез байтов для проверки
+/// * `expected_crc` - ожидаемое значение контрольной суммы
+/// 
+/// # Возвращает
+/// `true` если вычисленная CRC совпадает с ожидаемой, `false` в противном случае
 pub fn crc16_validate(data: &[u8], expected_crc: u16) -> bool {
     let calculated_crc = calculate_crc16(data);
     calculated_crc == expected_crc
